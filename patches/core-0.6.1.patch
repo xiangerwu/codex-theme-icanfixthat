@@ -1,0 +1,172 @@
+--- a/src/adapters/codex.mjs
++++ b/src/adapters/codex.mjs
+@@ -26,16 +26,24 @@
+     },
+   },
+   matchTarget(target) {
+-    return target?.type === "page" && String(target.url ?? "").startsWith("app://");
++    if (target?.type !== "page") return false;
++    try {
++      const url = new URL(target.url);
++      // Codex auxiliary windows are not chat workspaces.
++      return url.protocol === "app:" && url.pathname !== "/detached-window.html"
++        && !["/avatar-overlay", "/detached-window"].includes(url.searchParams.get("initialRoute"));
++    } catch {
++      return false;
++    }
+   },
+   verification: {
+     // The root landmark is the only blocking check: it doubles as the
+     // "app finished booting" signal and the minimal app fingerprint. Everything
+     // else warns — the sidebar collapses, and CSS is inert on absent nodes.
+-    rootAny: ["main.main-surface"],
++    rootAny: ["main.main-surface", 'main[class*="MainContentSurface-"]'],
+     recommended: [
+       { name: "sidebar", any: ["aside.app-shell-left-panel"] },
+-      { name: "composer", any: [".composer-surface-chrome"] },
++      { name: "composer", any: [".composer-surface-chrome", '[class*="ComposerLayoutRoot-"]'] },
+     ],
+   },
+ };
+--- a/src/runtime/profiles/codex-theme-v1.mjs
++++ b/src/runtime/profiles/codex-theme-v1.mjs
+@@ -37,6 +37,47 @@
+     chrome.querySelector(".dream-ribbon-emoji").textContent = String(copy.ribbon ?? "");
+   };
+ 
++  const updateHud = (hud) => {
++    const current = document.querySelector('[data-app-action-sidebar-thread-selected="true"][data-app-action-sidebar-thread-id]')?.getAttribute('data-app-action-sidebar-thread-id');
++    const raw = window.__INTERLINKED_TELEMETRY__;
++    const now = Date.now();
++    const d = raw && current === 'local:' + raw.threadId && now - raw.readAt < 10000 ? raw : null;
++    const text = (selector, value) => { const e=hud.querySelector(selector); if(e && e.textContent!==value) e.textContent=value; };
++    const number = v => Number.isFinite(v) ? String(v) : '—';
++    const tokens = v => Number.isFinite(v) ? (v>=1000 ? (v/1000).toFixed(1)+'K' : String(v)) : '—';
++    const duration = ms => !Number.isFinite(ms) || ms<0 ? '—' : ms<60000 ? Math.floor(ms/1000)+'秒' : ms<3600000 ? Math.floor(ms/60000)+'分'+Math.floor(ms/1000%60)+'秒' : Math.floor(ms/3600000)+'時'+Math.floor(ms/60000%60)+'分';
++    const meter = (selector,pct,color,elapsed=null) => {
++      const e=hud.querySelector(selector); const valid=Number.isFinite(pct);
++      e.style.setProperty('--meter-fill',valid?Math.max(0,Math.min(100,pct))+'%':'0%');
++      e.style.setProperty('--meter-color',color);
++      e.style.setProperty('--meter-elapsed',Number.isFinite(elapsed)?elapsed*100+'%':'0%');
++      e.style.setProperty('--meter-mark',Number.isFinite(elapsed)?'1':'0');
++      e.setAttribute('aria-label',valid?`用量 ${pct.toFixed(1)}%`:'用量未知');
++    };
++    const pct=d?.window>0 && Number.isFinite(d.tokens)?100*d.tokens/d.window:null;
++    text('.il-context-count',tokens(d?.tokens)+' / '+tokens(d?.window));
++    text('.il-context-used','最近請求 '+(pct===null?'—':pct.toFixed(1)+'%'));
++    const title=d?.observedAt?'最後 token 事件：'+new Date(d.observedAt).toLocaleString()+'；最近請求總 tokens / 模型上下文上限，非精確即時占用。':'尚無目前對話的 token 事件';
++    hud.querySelector('.il-context').title=title;
++    hud.setAttribute('aria-label',d?'LAPWING HUD，目前對話事件數據':'LAPWING HUD，尚無目前對話數據');
++    hud.querySelector('.il-limits').title=d?.observedAt?'事件最後回報：'+new Date(d.observedAt).toLocaleString()+'；不是即時帳戶查詢。':'尚無額度回報';
++    meter('.il-context .il-meter',pct,'#36d7f0');
++    text('.il-history','紀錄 '+number(d?.turns)+' 回合');
++    for (const [key,selector,label,color] of [['five','.il-limit-line:not(.il-week)','5小時','#ff4275'],['week','.il-week','每週','#36d7f0']]) {
++      const limit=d?.[key]; const w=limit && limit.resetAt>now?limit:null;
++      text(selector+' b',label+' '+(w?number(w.percent)+'%':'—'));
++      const elapsed=w?Math.max(0,Math.min(1,1-(w.resetAt-now)/(w.windowMinutes*60000))):null;
++      text(selector+' span',w?'剩 '+duration(w.resetAt-now)+' · '+(w.percent>elapsed*100+10?'用量超前':'節奏正常'):'剩 — · 節奏 —');
++      meter(key==='five'?'.il-meter-five':'.il-meter-week',w?.percent??null,color,elapsed);
++    }
++    text('.il-limits .il-heading span','▏已過時間');
++    text('[data-field="tools"]',number(d?.tools)); text('[data-field="turns"]',number(d?.turns));
++    text('[data-field="last"]',duration(d?.lastDurationMs)); text('[data-field="elapsed"]',d?.startedAt?duration(now-d.startedAt):'—');
++    const state=d?.status==='working'?'● 運作中':d?.status==='complete'?'○ 已完成':d?.status==='aborted'?'○ 已中止':'○ —';
++    text('.il-persona > .il-cyan',state); text('[data-field="status"]',state);
++    text('[data-field="clock"]',new Date(now).toLocaleTimeString('zh-TW',{hour12:false,hour:'2-digit',minute:'2-digit'}));
++    text('[data-field="date"]',new Date(now).toLocaleDateString('zh-TW',{month:'2-digit',day:'2-digit',weekday:'short'}));
++  };
+   const ensure = () => {
+     const root = document.documentElement;
+     if (!root) return false;
+@@ -78,6 +119,46 @@
+     chrome.style.width = `${Math.round(shellBox.width)}px`;
+     chrome.style.height = `${Math.round(shellBox.height)}px`;
+     chrome.classList.toggle("dream-home-shell", Boolean(home));
++    // Private Interlinked HUD: no fabricated usage readings or theme scripts.
++    if (theme.id === "interlinked-codex") {
++      const composer = document.querySelector('main :is(.composer-surface-chrome, [class*="ComposerLayoutRoot-"])');
++      if (composer) {
++        let hud = document.getElementById("interlinked-hud");
++        if (!hud) {
++          hud = document.createElement("section");
++          hud.id = "interlinked-hud";
++          hud.setAttribute("aria-label", "LAPWING HUD，尚未接入即時數據");
++          hud.innerHTML = `
++            <div class="il-hud-grid">
++              <div class="il-portrait" role="img" aria-label="LAPWING 頭像"></div>
++              <div class="il-context">
++                <div class="il-heading"><b>上下文</b><span class="il-context-count">— / —</span></div>
++                <div class="il-cyan il-context-used">最近請求 —</div>
++                <div class="il-meter" aria-label="上下文用量未知"></div>
++                <div class="il-categories"><span>■訊息 —</span> <span>■系統工具 —</span> <span>■MCP工具 —</span></div>
++                <div class="il-history">紀錄 — 回合</div>
++              </div>
++              <div class="il-limits">
++                <div class="il-heading"><b>方案額度</b><span>▏已過時間 —</span></div>
++                <div class="il-limit-line"><b>5小時 —</b> <span>剩 — · 節奏 —</span></div>
++                <div class="il-meter il-meter-five" aria-label="5 小時額度未知"></div>
++                <div class="il-limit-line il-week"><b>每週 —</b> <span>剩 — · 節奏 —</span></div>
++                <div class="il-meter il-meter-week" aria-label="每週額度未知"></div>
++              </div>
++            </div>
++            <div class="il-persona"><span><b>◆ LAPWING ▸</b> 卡住的話先深呼吸，我們一起慢慢想。</span><span class="il-cyan">狀態 —</span></div>
++            <div class="il-footer"><span title="工具數為事件紀錄中的外層呼叫；對話時長含閒置時間">工具呼叫 <b data-field="tools">—</b>　回合 <b data-field="turns">—</b>　上回合 <b data-field="last">—</b>　失敗 <b>—</b>　對話時長 <b data-field="elapsed">—</b></span><span><b data-field="clock">—</b>　<b data-field="date">—</b>　<span class="il-cyan" data-field="status">○ —</span></span></div>`;
++        }
++        const portrait = hud.querySelector(".il-portrait");
++        const placeholder = imageUrls.portrait ? "" : "NO SIGNAL";
++        if (portrait.textContent !== placeholder) portrait.textContent = placeholder;
++        if (hud.nextElementSibling !== composer) composer.before(hud);
++        updateHud(hud);
++      }
++    } else {
++      document.getElementById("interlinked-hud")?.remove();
++    delete window.__INTERLINKED_TELEMETRY__;
++    }
+     return true;
+   };
+ 
+@@ -92,6 +173,8 @@
+     document.querySelectorAll(".dream-home").forEach((node) => node.classList.remove("dream-home"));
+     document.querySelectorAll(".dream-home-shell").forEach((node) => node.classList.remove("dream-home-shell"));
+     document.getElementById(CHROME_ID)?.remove();
++    document.getElementById("interlinked-hud")?.remove();
++    delete window.__INTERLINKED_TELEMETRY__;
+   };
+ 
+   const verify = () => {
+@@ -100,6 +183,7 @@
+     const nativeHome = document.querySelector('[role="main"]:has([data-testid="home-icon"])');
+     const markedHome = document.querySelector('[role="main"].dream-home');
+     const missing = [];
++    if (theme.id === "interlinked-codex" && !document.querySelector("#interlinked-hud .il-footer")) missing.push({ name: "interlinked-hud", selectors: ["#interlinked-hud .il-footer"] });
+     if (!root?.classList.contains("codedrobe-codex-skin")) {
+       missing.push({ name: "legacy-root-class", selectors: ["html.codedrobe-codex-skin"] });
+     }
+@@ -147,6 +231,8 @@
+   document.querySelectorAll(".dream-home-shell").forEach((node) => node.classList.remove("dream-home-shell"));
+   document.getElementById("codedrobe-codex-skin-style")?.remove();
+   document.getElementById("codedrobe-codex-skin-chrome")?.remove();
++  document.getElementById("interlinked-hud")?.remove();
++    delete window.__INTERLINKED_TELEMETRY__;
+ }
+ 
+ export default {
+--- a/src/runtime/injector.mjs
++++ b/src/runtime/injector.mjs
+@@ -1,3 +1,4 @@
++import { refreshHudTelemetry } from './interlinked-telemetry.mjs';
+ import fs from "node:fs/promises";
+ import path from "node:path";
+ import { CdpSession, listCdpTargets } from "../cdp/session.mjs";
+@@ -265,6 +266,11 @@
+           onEvent({ type: "error", targetId: target.id, code: error.code, message: error.message, missing: error.missing ?? [] });
+         }
+       }
++      if (adapter.id === "codex" && targetTheme.theme.id === "interlinked-codex") {
++        for (const session of sessions.values()) {
++          try { await refreshHudTelemetry(session); } catch { /* Detached renderer; the next poll reconnects. */ }
++        }
++      }
+       await delay(900);
+     }
+   } finally {

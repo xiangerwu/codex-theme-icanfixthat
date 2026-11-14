@@ -1,0 +1,17 @@
+/assets/portrait.*
+/dist/
+/backup-*/
+/*.png
+/dom*.json
+/verify*.json
+/pack-result.json
+/active-watcher.json
+/*.local.json
+/DESIGN.md
+/check-scan.mjs
+/inspect-route.mjs
+/verify-hud.mjs
+/telemetry-live.test.mjs
+/compat.test.mjs
+node_modules/
+*.log

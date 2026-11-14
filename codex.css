@@ -1,0 +1,153 @@
+html.codedrobe-host-codex {
+  color-scheme: dark;
+  --color-token-bg-primary: #0b0f12;
+  --color-token-bg-secondary: #101920;
+  --color-token-main-surface-primary: #0b0f12;
+  --color-token-side-bar-background: #0d141a;
+  --color-token-foreground: #e6eef3;
+  --color-token-text-primary: #e6eef3;
+  --color-token-text-secondary: #a6bcc8;
+  --color-token-text-tertiary: #90a4b0;
+  --color-token-description-foreground: #a6bcc8;
+  --color-token-border: #2a414b;
+  --color-token-focus-border: #64d5e3;
+  --color-token-input-background: #101920;
+  --color-token-input-foreground: #e6eef3;
+  --color-token-menu-background: #131b22;
+  --color-token-dropdown-background: #131b22;
+  --color-token-text-link-foreground: #6bd7e6;
+  --color-token-text-code-block-background: #101920;
+}
+html.codedrobe-host-codex body { background: #0b0f12 !important; color: #e6eef3; }
+html.codedrobe-host-codex :is(main.main-surface, main[class*="MainContentSurface-"]) { position: relative; isolation: isolate; background: #0b0f12 !important; }
+html.codedrobe-host-codex :is(main.main-surface, main[class*="MainContentSurface-"])::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: linear-gradient(#0b0f1266,#0b0f1299), var(--codedrobe-image-hero);
+  background-size: 100% 100%,cover; background-position: center; background-repeat: no-repeat;
+  animation: il-breathe 9s ease-in-out infinite;
+}
+html.codedrobe-host-codex :is(main.main-surface, main[class*="MainContentSurface-"]):has(.dream-home)::before { display: none; }
+html.codedrobe-host-codex .dream-home::before {
+  content: ''; display: block; height: 260px; min-height: 260px; width: 100%; pointer-events: none;
+  background: linear-gradient(90deg,#0b0f1280,transparent),var(--codedrobe-image-hero) right center / auto 100% no-repeat;
+  border-bottom: 1px solid #e08a2a70; animation: il-breathe 9s ease-in-out infinite;
+}
+html.codedrobe-host-codex aside.app-shell-left-panel {
+  background: linear-gradient(180deg,#101c24,#0b1016) !important;
+  border-right: 1px solid #2fb4c940;
+}
+html.codedrobe-host-codex :is(.composer-surface-chrome, [class*="ComposerLayoutRoot-"]) {
+  background: #101920f5 !important; border-color: #2fb4c96b !important;
+  box-shadow: 0 6px 18px -10px #000 !important;
+}
+html.codedrobe-host-codex :is(.composer-surface-chrome, [class*="ComposerLayoutRoot-"]):focus-within { outline: 2px solid #64d5e3; outline-offset: 2px; }
+
+html.codedrobe-host-codex #codedrobe-codex-skin-chrome { position: fixed; z-index: 0; pointer-events: none !important; overflow: hidden; }
+html.codedrobe-host-codex #codedrobe-codex-skin-chrome::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(transparent 42%,#2fb4c915 49%,#9fe4ef30 50%,transparent 58%);
+  background-size: 100% 220%; animation: il-scan 14s linear infinite;
+}
+html.codedrobe-host-codex #codedrobe-codex-skin-chrome > * { display: none; }
+html.codedrobe-host-codex #codedrobe-codex-skin-chrome.dream-home-shell .dream-brand {
+  display: block; position: absolute; top: 65px; left: 5%; color: #e6eef3;
+}
+html.codedrobe-host-codex .dream-brand .dream-note { display: none; }
+html.codedrobe-host-codex .dream-brand-title { display: block; font-size: 28px; letter-spacing: .2em; }
+html.codedrobe-host-codex .dream-brand-subtitle { display: block; color: #6bd7e6; margin-top: 12px; }
+@keyframes il-breathe { 0%,100% { opacity: .72; } 50% { opacity: 1; } }
+@keyframes il-scan { from { background-position: 0 180%; } to { background-position: 0 -80%; } }
+@media (prefers-reduced-motion: reduce) {
+  html.codedrobe-host-codex :is(main.main-surface, main[class*="MainContentSurface-"])::before,
+  html.codedrobe-host-codex .dream-home::before,
+  html.codedrobe-host-codex #codedrobe-codex-skin-chrome::after { animation: none !important; }
+  html.codedrobe-host-codex #codedrobe-codex-skin-chrome::after { display: none; }
+}
+@media (max-width: 800px) {
+
+  html.codedrobe-host-codex .dream-brand-title { font-size: 20px; }
+}
+/* Full HUD, separate from the native input. Missing telemetry remains unknown. */
+html.codedrobe-host-codex #interlinked-hud {
+  box-sizing: border-box; width: 100%; margin: 0 0 8px; padding: 10px 10px 7px;
+  position: relative; border: 6px solid #20262a; border-radius: 10px;
+  background: #0d171d; color: #9eb2c4; font: 13px/1.3 'Cascadia Code','Microsoft JhengHei',monospace;
+  box-shadow: 0 2px 12px #0005; overflow: hidden;
+}
+html.codedrobe-host-codex #interlinked-hud::before,
+html.codedrobe-host-codex #interlinked-hud::after {
+  content: ''; position: absolute; left: 3px; right: 3px; height: 2px;
+  background: repeating-linear-gradient(90deg,#e8a33d 0 28px,transparent 28px 54px); pointer-events:none;
+}
+html.codedrobe-host-codex #interlinked-hud::before {top: 3px;}
+html.codedrobe-host-codex #interlinked-hud::after {bottom: 3px;}
+html.codedrobe-host-codex #interlinked-hud .il-hud-grid {display:grid; grid-template-columns: 99px minmax(0,1fr) minmax(0,.9fr); gap:16px; min-height:100px;}
+html.codedrobe-host-codex #interlinked-hud .il-portrait {
+  width:99px; height:100px; border:1.5px solid #ff4f8b; border-radius:3px;
+  background: repeating-linear-gradient(0deg,#14061a59 0 1px,transparent 1px 2px),linear-gradient(#ff4f8b1a,#7a3cff38),var(--codedrobe-image-portrait,linear-gradient(#120c18,#120c18)) center / cover;
+}
+html.codedrobe-host-codex #interlinked-hud .il-heading {display:flex; justify-content:space-between; gap:8px; white-space:nowrap;}
+html.codedrobe-host-codex #interlinked-hud .il-heading b {font-weight:500; color:#ffb52e; font-size:14px;}
+html.codedrobe-host-codex #interlinked-hud .il-heading span {font-size:12px; color:#8fa8bc;}
+html.codedrobe-host-codex #interlinked-hud .il-cyan {color:#36d7f0;}
+html.codedrobe-host-codex #interlinked-hud .il-meter {
+  height:9px; width:154px; max-width:100%; margin:2px 0;
+  background: repeating-linear-gradient(90deg,#22323c 0 8px,transparent 8px 10px);
+}
+html.codedrobe-host-codex #interlinked-hud .il-categories {font-size:11px; white-space:normal; margin:3px 0;}
+html.codedrobe-host-codex #interlinked-hud .il-categories span:first-child {color:#4bb5cb;}
+html.codedrobe-host-codex #interlinked-hud .il-categories span:nth-child(2) {color:#d6a04a;}
+html.codedrobe-host-codex #interlinked-hud .il-categories span:nth-child(3) {color:#dc5f91;}
+html.codedrobe-host-codex #interlinked-hud .il-history {font-size:12px; margin-top:5px;}
+html.codedrobe-host-codex #interlinked-hud .il-history span {color:#36d7f0;}
+html.codedrobe-host-codex #interlinked-hud .il-limits {border-left:7px solid #0a1218; padding-left:8px;}
+html.codedrobe-host-codex #interlinked-hud .il-limit-line {white-space:nowrap; font-size:12px; margin-top:3px;}
+html.codedrobe-host-codex #interlinked-hud .il-limit-line b {color:#ff4275; font-weight:500;}
+html.codedrobe-host-codex #interlinked-hud .il-week b {color:#36d7f0;}
+html.codedrobe-host-codex #interlinked-hud .il-persona {display:flex; justify-content:space-between; gap:8px; margin-top:4px; font-size:12px; color:#e6eef3;}
+html.codedrobe-host-codex #interlinked-hud .il-persona b {color:#ff4275; font-weight:600;}
+html.codedrobe-host-codex #interlinked-hud .il-footer {display:flex; justify-content:space-between; gap:8px; font-size:10px; margin-top:2px; color:#8fa8bc; flex-wrap:wrap;}
+html.codedrobe-host-codex #interlinked-hud .il-footer b {color:#ffb52e; font-weight:500;}
+/* Put the scan above the canvas rather than behind its opaque main surface. */
+html.codedrobe-host-codex #codedrobe-codex-skin-chrome::after {display:none;}
+html.codedrobe-host-codex :is(main.main-surface,main[class*="MainContentSurface-"])::after {
+  content:''; position:absolute; inset:0; z-index:5; pointer-events:none;
+  background-image:linear-gradient(transparent 44%,#2fb4c90a 47%,#2fb4c92b 49.8%,#9fe4ef70 50%,#2fb4c91a 50.3%,transparent 56%);
+  background-size:100% 300%; background-repeat:no-repeat;
+  animation:il-scan-down 11s linear infinite;
+}
+@keyframes il-scan-down {from {background-position:0 100%;} to {background-position:0 0%;}}
+@media(prefers-reduced-motion:reduce) {
+  html.codedrobe-host-codex :is(main.main-surface,main[class*="MainContentSurface-"])::after {display:none;animation:none;}
+}
+@media(max-width:650px) {
+  html.codedrobe-host-codex #interlinked-hud .il-hud-grid {grid-template-columns:72px minmax(0,1fr);gap:10px;}
+  html.codedrobe-host-codex #interlinked-hud .il-portrait {width:72px;height:100px;}
+  html.codedrobe-host-codex #interlinked-hud .il-limits {grid-column:1 / -1; border-left:0; padding-left:0;}
+  html.codedrobe-host-codex #interlinked-hud .il-persona {flex-wrap:wrap;}
+}/* User-approved exception: only this slow scan runs under reduced motion. */
+@media(prefers-reduced-motion:reduce) {
+  html.codedrobe-host-codex :is(main.main-surface,main[class*="MainContentSurface-"])::after {
+    display:block; animation:il-scan-down 16s linear infinite;
+  }
+}
+/* The scan shares the background plane; all normal content paints above it. */
+html.codedrobe-host-codex :is(main.main-surface,main[class*="MainContentSurface-"])::after {z-index:-1;}
+/* Only the two native footer backdrop layers, never the input's inner fade. */
+html.codedrobe-host-codex [class~="group/thread-scroll-layout"]:has(#interlinked-hud) [class*="background-"].pointer-events-none:is(.from-surface,.bg-surface) {
+  background-color:transparent !important; background-image:none !important;
+}
+/* Filled segments represent observed usage; unavailable readings stay empty. */
+html.codedrobe-host-codex #interlinked-hud .il-meter {
+  --meter-fill:0%; --meter-color:#36d7f0;
+  background:linear-gradient(90deg,var(--meter-color) 0 var(--meter-fill),#22323c var(--meter-fill) 100%);
+  mask-image:repeating-linear-gradient(90deg,#000 0 8px,transparent 8px 10px);
+}
+html.codedrobe-host-codex #interlinked-hud .il-heading span {font-size:11px;}
+html.codedrobe-host-codex #interlinked-hud .il-meter {position:relative;}
+html.codedrobe-host-codex #interlinked-hud .il-meter::after {
+  content:''; position:absolute; top:0; bottom:0; left:clamp(0px,var(--meter-elapsed,0%),calc(100% - 2px));
+  width:2px; background:#e6eef3; opacity:var(--meter-mark,0); pointer-events:none;
+}
+
+html.codedrobe-host-codex #interlinked-hud .il-portrait {display:grid;place-items:center;color:#ff4f8b;font-size:10px;}

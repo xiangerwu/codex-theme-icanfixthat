@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "id": "interlinked-codex",
+  "displayName": "Interlinked · 夜城 HUD",
+  "version": "0.3.1",
+  "images": {
+    "hero": "assets/hero.png"
+  },
+  "copy": {
+    "brandTitle": "INTERLINKED",
+    "brandSubtitle": "夜城連線 · CODEX",
+    "signature": "◆ LAPWING ▸ 慢慢來，我們一起完成。",
+    "tagline": "INTERLINKED / 夜城工作站"
+  },
+  "targets": {
+    "codex": {
+      "css": "codex.css",
+      "options": {
+        "rendererProfile": "codex-theme-v1",
+        "baseTheme": {
+          "mode": "dark",
+          "codeTheme": "codex",
+          "accent": "#2fb4c9",
+          "contrast": 82,
+          "ink": "#e6eef3",
+          "surface": "#0b0f12",
+          "opaqueWindows": true,
+          "semanticColors": {
+            "diffAdded": "#19392c",
+            "diffRemoved": "#402322",
+            "skill": "#c0a2ef"
+          }
+        }
+      },
+      "verification": {
+        "required": [
+          {
+            "name": "workspace",
+            "any": [
+              "main.main-surface",
+              "main[class*=\"MainContentSurface-\"]"
+            ]
+          },
+          {
+            "name": "hud-composer",
+            "any": [
+              ".composer-surface-chrome",
+              "[class*=\"ComposerLayoutRoot-\"]"
+            ]
+          }
+        ],
+        "contexts": [
+          {
+            "name": "home",
+            "when": {
+              "any": [
+                ".dream-home"
+              ]
+            },
+            "required": [
+              {
+                "name": "home-hero",
+                "any": [
+                  ".dream-home"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
