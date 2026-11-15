@@ -196,22 +196,25 @@
    const ensure = () => {
      const root = document.documentElement;
      if (!root) return false;
-@@ -48,7 +207,7 @@
+@@ -48,7 +207,11 @@
      root.style.setProperty("--dream-project-prefix", cssString(copy.projectPrefix));
      root.style.setProperty("--dream-project-label", cssString(copy.projectLabel));
  
 -    const shellMain = document.querySelector("main.main-surface") || document.querySelector("main");
-+    const shellMain = document.querySelector('main.main-surface, main[class*="MainContentSurface-"]') || document.querySelector("main");
++    // Codex keeps inactive conversations mounted; skip their hidden composers.
++    const visible = element => element.checkVisibility();
++    const composer = [...document.querySelectorAll('main :is(.composer-surface-chrome, [class*="ComposerLayoutRoot-"])')].find(visible);
++    const shellMain = composer?.closest('main.main-surface, main[class*="MainContentSurface-"]')
++      || [...document.querySelectorAll('main.main-surface, main[class*="MainContentSurface-"], main')].find(visible);
      const home = document.querySelector('[role="main"]:has([data-testid="home-icon"])');
      for (const candidate of document.querySelectorAll('[role="main"].dream-home')) {
        if (candidate !== home) candidate.classList.remove("dream-home");
-@@ -78,6 +237,53 @@
+@@ -78,6 +241,52 @@
      chrome.style.width = `${Math.round(shellBox.width)}px`;
      chrome.style.height = `${Math.round(shellBox.height)}px`;
      chrome.classList.toggle("dream-home-shell", Boolean(home));
 +    // Private Interlinked HUD: no fabricated usage readings or theme scripts.
 +    if (theme.id === "interlinked-codex") {
-+      const composer = document.querySelector('main :is(.composer-surface-chrome, [class*="ComposerLayoutRoot-"])');
 +      if (composer) {
 +        let hud = document.getElementById("interlinked-hud");
 +        if (!hud) {
@@ -259,7 +262,7 @@
      return true;
    };
  
-@@ -92,6 +298,14 @@
+@@ -92,6 +301,14 @@
      document.querySelectorAll(".dream-home").forEach((node) => node.classList.remove("dream-home"));
      document.querySelectorAll(".dream-home-shell").forEach((node) => node.classList.remove("dream-home-shell"));
      document.getElementById(CHROME_ID)?.remove();
@@ -274,7 +277,7 @@
    };
  
    const verify = () => {
-@@ -100,6 +314,7 @@
+@@ -100,6 +317,7 @@
      const nativeHome = document.querySelector('[role="main"]:has([data-testid="home-icon"])');
      const markedHome = document.querySelector('[role="main"].dream-home');
      const missing = [];
@@ -282,7 +285,7 @@
      if (!root?.classList.contains("codedrobe-codex-skin")) {
        missing.push({ name: "legacy-root-class", selectors: ["html.codedrobe-codex-skin"] });
      }
-@@ -147,6 +362,14 @@
+@@ -147,6 +365,14 @@
    document.querySelectorAll(".dream-home-shell").forEach((node) => node.classList.remove("dream-home-shell"));
    document.getElementById("codedrobe-codex-skin-style")?.remove();
    document.getElementById("codedrobe-codex-skin-chrome")?.remove();

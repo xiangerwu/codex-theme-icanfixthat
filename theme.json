@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "interlinked-codex",
   "displayName": "Interlinked · 夜城 HUD",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "images": {
     "hero": "assets/hero.png"
   },

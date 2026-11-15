@@ -38,6 +38,8 @@ HUD 上方右側的 **◈ 外觀** 可開啟面板，隱藏 HUD 後入口仍保�
 
 套用主題後執行 `node controls.test.mjs`，會實際切換本主題控制、檢查動畫／排版／Esc／儲存／預設值，並還原執行前設定；需要 CDP 9335。截圖 `.runtime/controls-actual.png` 僅保留本地。
 
+切換對話時，HUD 會移到目前可見的輸入框上方。`node hud-route.test.mjs` 可檢查隱藏的舊輸入框不會搶走 HUD、外觀面板或背景；需要已套用主題及 CDP 9335。
+
 ## 安裝
 
 目前實測：Windows、Codex `26.1111.2228.0`、CodeDrobe Core `0.6.1`。需要 Node.js 22.4+、npm、Git。首頁與窄視窗仍未完整驗證；Codex 或 Core 更新可能需要重新適配。

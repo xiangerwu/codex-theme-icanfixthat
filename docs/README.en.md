@@ -6,6 +6,8 @@
 
 A local experimental Codex desktop port of the [Claude theme](https://github.com/xiangerwu/claude-theme-icanfixthat): a dark lattice backdrop, downward scanning light, portrait, context/limits columns, segmented meters and a status footer. Unknown values stay `—`.
 
+When switching chats, the HUD follows the visible composer. Run `node hud-route.test.mjs` with the theme applied on CDP 9335 to check that hidden cached composers cannot capture the HUD, controls or background.
+
 ## Install
 
 Tested on Windows with Codex 26.1106.6628.0 and CodeDrobe Core 0.6.1. Requires Node.js 22.4+, npm and Git. Home and narrow layouts are not fully verified.
