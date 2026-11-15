@@ -1,5 +1,7 @@
 # Interlinked · Codex 夜城 HUD
 
+![Codex 夜城 HUD 實機預覽](docs/hud-preview.png)
+
 繁體中文 | [English](docs/README.en.md)
 
 將 [Claude 主題](https://github.com/xiangerwu/claude-theme-icanfixthat) 的夜城配色、格線背景、向下掃描光與 LAPWING HUD 移植到 Codex 桌面版。這是本地實驗性主題，透過 CodeDrobe Core 套用，不修改 Codex 安裝檔。
@@ -76,7 +78,7 @@ powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File .\launch-theme.ps1
 
 ## 頭像與私人檔案
 
-公開 repo **不含私人頭像、實機截圖、DOM 快照、備份或封裝產物**。沒有頭像時顯示 `NO SIGNAL`。
+公開 repo 僅包含本頁展示用的 HUD 截圖，**不含獨立私人頭像檔、其他實機截圖、DOM 快照、備份或封裝產物**。沒有頭像時顯示 `NO SIGNAL`。
 
 若有權使用自己的圖片，可放入 `assets/portrait.jpg` 或 `assets/portrait.png`，再執行 `node pack.mjs`。本地封裝會包含圖片；請勿公開帶有未授權素材的 `dist/`。頭像、`theme.local.json`、`dist/` 都已加入 `.gitignore`。
 

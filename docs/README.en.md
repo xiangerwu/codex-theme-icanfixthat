@@ -1,5 +1,7 @@
 # Interlinked · Codex Night-city HUD
 
+![Codex night-city HUD preview](hud-preview.png)
+
 [繁體中文](../README.md) | English
 
 A local experimental Codex desktop port of the [Claude theme](https://github.com/xiangerwu/claude-theme-icanfixthat): a dark lattice backdrop, downward scanning light, portrait, context/limits columns, segmented meters and a status footer. Unknown values stay `—`.
@@ -30,7 +32,7 @@ Context means **last request tokens / reported model context window**, not preci
 
 ## Private assets and motion
 
-This repository excludes portraits, live screenshots, DOM snapshots, backups and packaged output. With no portrait, the HUD shows `NO SIGNAL`. Add your own permitted `assets/portrait.jpg` or `assets/portrait.png` and run `node pack.mjs`; the resulting local package contains that image, so do not publish it without permission.
+This repository includes the HUD preview shown above, but excludes standalone private portraits, other live screenshots, DOM snapshots, backups and packaged output. With no portrait, the HUD shows `NO SIGNAL`. Add your own permitted `assets/portrait.jpg` or `assets/portrait.png` and run `node pack.mjs`; the resulting local package contains that image, so do not publish it without permission.
 
 The scan defaults to a 16-second cycle with the previously approved reduced-motion exception. Adjust or disable it from the appearance panel without editing CSS.
 
