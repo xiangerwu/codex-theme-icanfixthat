@@ -42,7 +42,7 @@ Stop the watcher with Ctrl+C, then run `codedrobe restore --app codex --port 933
 
 Project code: MIT. Core-derived patches: Apache-2.0, with license and notice in `patches/`. Private artwork is excluded from those licenses.
 
-## Appearance controls (0.4.0)
+## Appearance controls
 
 Open **◈ 外觀** above the HUD on the right. The entry remains available when the HUD is hidden. Changes apply immediately and persist in local Codex storage. Escape closes the panel; reset restores defaults.
 
@@ -53,3 +53,17 @@ Rain defaults off. With reduced motion enabled, rain/border animation defaults p
 After applying, run `node controls.test.mjs` with CDP port 9335. This live check exercises theme controls, storage, animation, layout, Escape and reset, then restores prior settings. The screenshot stays local and is ignored by Git.
 
 Distant building silhouettes, windows and rooftop neon sit behind the lattice. Both layers blur through the glass. The building toggle defaults on and saves locally. The light color picker applies immediately and saves locally.
+
+## Launch with the theme on Windows
+
+After installing and packing, run once:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File .\launch-theme.ps1 -InstallShortcut
+```
+
+Use **Codex 夜城** in Start Menu, including after a reboot. This is an on-demand launcher, not a Windows login startup task. It starts Codex through Core on loopback CDP 9335, waits for compatible DOM, then attaches one hidden watcher. Fully quitting Codex stops that watcher. Repeated clicks do not create duplicates.
+
+The stock Codex icon does not launch the theme. If stock Codex is already open without CDP, close it before using this shortcut. Only the explicit `-RestartExisting` switch permits a restart. `-Check` checks dependencies without launching. Local diagnostics are in ignored `.runtime/`. Reinstall the shortcut after moving this repository; remove the Start Menu shortcut to stop using the themed entry.
+
+Verified on Codex 26.1111.2228.0. With CDP already open, `powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File .\launcher.test.ps1` checks the real shortcut, probe progress handling and duplicate prevention. Screenshots from the controls test stay in `.runtime/`.

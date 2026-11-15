@@ -11,6 +11,7 @@ const target=(await listCdpTargets(9335)).find(t=>adapter.matchTarget(t));
 assert.ok(target,'Start Codex with CDP on port 9335 and apply this theme first.');
 const session=await new CdpSession(target).open();
 let original;
+let originallyOpen = false;
 const read=()=>session.evaluate(`(()=>{
  const q=s=>document.querySelector(s), c=q('#interlinked-controls'), h=q('#interlinked-hud'), w=q('#interlinked-weather');
  const style=(e,p)=>getComputedStyle(e,p), main=w.parentElement;
@@ -19,9 +20,10 @@ const read=()=>session.evaluate(`(()=>{
 })()`);
 const set=(key,value)=>session.evaluate(`(()=>{const e=document.querySelector('#interlinked-controls input[data-setting="${key}"]');if(e.type==='checkbox')e.checked=${JSON.stringify(value)};else e.value=${JSON.stringify(value)};e.dispatchEvent(new Event('input',{bubbles:true}));})()`);
 try {
+ originallyOpen=await session.evaluate(`document.querySelector('#interlinked-controls').open`);
  original=await session.evaluate(`Object.fromEntries([...document.querySelectorAll('#interlinked-controls input')].map(e=>[e.dataset.setting,e.type==='checkbox'?e.checked:e.type==='color'?e.value:Number(e.value)]))`);
  assert.equal(Object.keys(original).length,14);
- await session.evaluate(`document.querySelector('#interlinked-controls summary').click()`);
+ await session.evaluate(`(()=>{const c=document.querySelector('#interlinked-controls');if(!c.open)c.querySelector('summary').click()})()`);
  let s=await read();assert.equal(s.count,1);assert.equal(s.open,true);assert.equal(s.visible,true);assert.equal(s.overflow,false);assert.equal(s.entryAboveHud,true);assert.equal(s.pointer,'none');assert.equal(s.checkbox,'auto');assert.equal(s.scanZ,'-1');
  for(const key of ['city','rain','glass','light','scan','hud','motion'])await set(key,false);
  s=await read();assert.equal(s.city,'none');assert.equal(s.hud,'none');assert.equal(s.rain,'none');assert.equal(s.scan,'none');assert.equal(s.light,'none');assert.equal(s.glass,'none');assert.equal(s.lattice,'none');assert.equal(s.motion,'paused');
@@ -35,16 +37,17 @@ try {
  for(const [key,value] of Object.entries({rainAmount:85,rainSpeed:55,glassStrength:20,lightStrength:40,scanSpeed:9,hudSize:110}))await set(key,value);
  s=await read();assert.notEqual(s.city,'none');assert.equal(s.cityZ,'-2');assert.equal(s.cityDistanceBlur,'blur(3.5px)');assert.equal(s.cityOpacity,'0.62');assert.ok(Math.abs(s.cityHeight-.62)<.01);assert.equal(s.latticeZ,'-1');assert.equal(s.cityBlur,'blur(20px)');assert.equal(s.latticeBlend,'screen');assert.notEqual(s.hud,'none');assert.notEqual(s.rain,'none');assert.notEqual(s.scan,'none');assert.notEqual(s.light,'none');assert.match(s.glass,/blur\(20px\)/);assert.equal(s.lattice,'blur(20px)');assert.equal(s.textFilter,'none');assert.equal(s.scanDuration,'9s');assert.equal(s.motion,'running');assert.ok(s.hudWidth<=s.containerWidth+1,'HUD must fit at 110%');assert.equal(s.storage.rainAmount,85);assert.equal(s.rainCount,34);assert.equal(s.rainDuration,'9.24s');assert.equal(s.lightOpacity,'0.4');
  await new Promise(r=>setTimeout(r,450));const next=await read();assert.notEqual(s.edge,next.edge);assert.notEqual(s.drop,next.drop);
- await session.evaluate(`document.querySelector('#interlinked-control-panel button').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))`);
+ await session.evaluate(`(()=>{const button=document.querySelector('#interlinked-control-panel button');button.focus();button.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));button.dispatchEvent(new KeyboardEvent('keyup',{key:'Escape',bubbles:true,cancelable:true}))})()`);
  s=await read();assert.equal(s.open,false);assert.equal(s.focus,true);
  await session.evaluate(`document.querySelector('#interlinked-controls summary').click();document.querySelector('#interlinked-controls [data-action="reset"]').click()`);
  s=await read();assert.equal(s.storage.city,true);assert.equal(s.storage.rain,false);assert.equal(s.storage.hudSize,100);assert.equal(s.storage.scanSpeed,16);assert.equal(s.storage.lightColor,'#ffe3a8');
  // Screenshot only our panel, with local-only output excluded by .gitignore.
  const shot=await session.send('Page.captureScreenshot',{format:'png',clip:s.clip,captureBeyondViewport:false});
- await fs.writeFile(new URL('./controls-actual.png',import.meta.url),Buffer.from(shot.data,'base64'));
+ await fs.mkdir(new URL('./.runtime/',import.meta.url),{recursive:true});
+ await fs.writeFile(new URL('./.runtime/controls-actual.png',import.meta.url),Buffer.from(shot.data,'base64'));
  console.log(JSON.stringify({passed:true,toggles:7,sliders:6,colorPicker:true,persistence:true,animatedRainAndBorder:true,keyboardEscape:true,reset:true,panelInsideViewport:true,scanBehindContent:true}));
 } finally {
  if(original)for(const [key,value] of Object.entries(original))await set(key,value);
- await session.evaluate(`document.querySelector('#interlinked-controls').open=false`);
+ await session.evaluate(`document.querySelector('#interlinked-controls').open=${originallyOpen}`);
  session.close();
 }
