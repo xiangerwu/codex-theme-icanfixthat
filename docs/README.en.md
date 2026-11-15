@@ -32,7 +32,7 @@ Context means **last request tokens / reported model context window**, not preci
 
 This repository excludes portraits, live screenshots, DOM snapshots, backups and packaged output. With no portrait, the HUD shows `NO SIGNAL`. Add your own permitted `assets/portrait.jpg` or `assets/portrait.png` and run `node pack.mjs`; the resulting local package contains that image, so do not publish it without permission.
 
-The slow scan has an explicit local-user exception for reduced motion (16 seconds), without changing system settings. Remove the CSS rule marked `User-approved exception` to fully honor reduced-motion preferences.
+The scan defaults to a 16-second cycle with the previously approved reduced-motion exception. Adjust or disable it from the appearance panel without editing CSS.
 
 ## Verify and restore
 
@@ -41,3 +41,15 @@ Run `node telemetry.test.mjs`, then `codedrobe probe` / `codedrobe verify` with 
 Stop the watcher with Ctrl+C, then run `codedrobe restore --app codex --port 9335`. Fully quit/reopen Codex if restart is required. Restore the three Core files from `backup-install-<timestamp>/` to their original relative paths under the global `@codedrobe/core` directory (`npm root -g`) to undo the code patch.
 
 Project code: MIT. Core-derived patches: Apache-2.0, with license and notice in `patches/`. Private artwork is excluded from those licenses.
+
+## Appearance controls (0.4.0)
+
+Open **◈ 外觀** above the HUD on the right. The entry remains available when the HUD is hidden. Changes apply immediately and persist in local Codex storage. Escape closes the panel; reset restores defaults.
+
+Controls cover wet-glass rain amount/speed, frosted HUD/composer strength, soft upper-right light brightness/color (warm yellow by default), background scan period, and HUD visibility/size (80–110%). Rain uses CSS droplets, not a fluid simulation. The moving top border shares the rain animation toggle. Decorations stay behind content; the glass slider also blurs the distant lattice artwork while text and droplets stay sharp.
+
+Rain defaults off. With reduced motion enabled, rain/border animation defaults paused; the panel offers an explicit theme-only override. The previously approved scan exception remains independently controllable. No system settings change.
+
+After applying, run `node controls.test.mjs` with CDP port 9335. This live check exercises theme controls, storage, animation, layout, Escape and reset, then restores prior settings. The screenshot stays local and is ignored by Git.
+
+Distant building silhouettes, windows and rooftop neon sit behind the lattice. Both layers blur through the glass. The building toggle defaults on and saves locally. The light color picker applies immediately and saves locally.

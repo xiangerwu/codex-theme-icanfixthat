@@ -30,7 +30,7 @@
  };
 --- a/src/runtime/profiles/codex-theme-v1.mjs
 +++ b/src/runtime/profiles/codex-theme-v1.mjs
-@@ -37,6 +37,47 @@
+@@ -37,6 +37,160 @@
      chrome.querySelector(".dream-ribbon-emoji").textContent = String(copy.ribbon ?? "");
    };
  
@@ -75,10 +75,132 @@
 +    text('[data-field="clock"]',new Date(now).toLocaleTimeString('zh-TW',{hour12:false,hour:'2-digit',minute:'2-digit'}));
 +    text('[data-field="date"]',new Date(now).toLocaleDateString('zh-TW',{month:'2-digit',day:'2-digit',weekday:'short'}));
 +  };
++  const preferenceKey = "interlinked-controls-v1";
++  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
++  const defaults = {city:true, rain:false, rainAmount:45, rainSpeed:35, glass:true, glassStrength:12, light:true, lightStrength:30, lightColor:"#ffe3a8", scan:true, scanSpeed:16, hud:true, hudSize:100, motion:!reducedMotion};
++  const ranges = {rainAmount:[10,100], rainSpeed:[10,100], glassStrength:[0,24], lightStrength:[0,100], scanSpeed:[6,30], hudSize:[80,110]};
++  let preferences = {...defaults};
++  try {
++    const saved = JSON.parse(localStorage.getItem(preferenceKey));
++    if (saved && typeof saved === 'object') for (const key of Object.keys(defaults)) {
++      const value = saved[key];
++      if (ranges[key]) {
++        if (Number.isFinite(value)) preferences[key] = Math.max(ranges[key][0], Math.min(ranges[key][1], value));
++      } else if (key === 'lightColor' && typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value)) preferences[key] = value;
++      else if (typeof defaults[key] === 'boolean' && typeof value === 'boolean') preferences[key] = value;
++    }
++  } catch { /* Unavailable storage or malformed preferences: use defaults. */ }
++  const applyPreferences = () => {
++    const root = document.documentElement;
++    for (const key of ['city','rain','glass','light','scan','hud','motion']) root.setAttribute('data-il-'+key, String(preferences[key]));
++    for (const [key,value] of Object.entries({
++      '--il-rain-opacity':preferences.rainAmount/100, '--il-rain-duration':(22-preferences.rainSpeed*.16)+'s',
++      '--il-glass-blur':preferences.glassStrength+'px', '--il-light-opacity':preferences.lightStrength/100, '--il-light-color':preferences.lightColor,
++      '--il-scan-duration':preferences.scanSpeed+'s', '--il-hud-scale':preferences.hudSize/100,
++    })) root.style.setProperty(key,String(value));
++    document.querySelectorAll('#interlinked-weather i').forEach((drop,i) => {drop.hidden=i>=Math.round(preferences.rainAmount*.4);});
++    const panel = document.getElementById('interlinked-controls');
++    panel?.querySelectorAll('input[data-setting]').forEach(input => {
++      const key=input.dataset.setting;
++      if (input.type==='checkbox') input.checked=preferences[key];
++      else { input.value=preferences[key]; const output=panel.querySelector('[data-output="'+key+'"]'); if(output) output.value=String(preferences[key]); }
++    });
++  };
++  const ensureControls = (composer, hud, shellMain) => {
++    let city=document.getElementById('interlinked-city');
++    if(!city) {
++      city=document.createElement('div');city.id='interlinked-city';city.setAttribute('aria-hidden','true');
++      // Static architectural silhouettes and repeating window patterns, no render loop.
++      city.innerHTML=`<svg viewBox="0 0 1600 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
++        <defs>
++          <linearGradient id="il-city-facade" x2="0" y2="1"><stop stop-color="#213440"/><stop offset="1" stop-color="#060d16"/></linearGradient>
++          <linearGradient id="il-city-haze" x2="0" y2="1"><stop stop-color="#060e1500"/><stop offset="1" stop-color="#080f17"/></linearGradient>
++          <pattern id="il-city-cyan" width="32" height="42" patternUnits="userSpaceOnUse"><rect x="4" y="5" width="7" height="5" fill="#80cbda" opacity=".65"/><rect x="20" y="5" width="7" height="5" fill="#f4c581" opacity=".5"/><rect x="4" y="26" width="7" height="5" fill="#5ca5c3" opacity=".38"/></pattern>
++          <pattern id="il-city-gold" width="40" height="48" patternUnits="userSpaceOnUse"><rect x="5" y="6" width="9" height="6" fill="#f0c17c" opacity=".7"/><rect x="25" y="30" width="9" height="6" fill="#e8b076" opacity=".5"/><rect x="5" y="30" width="9" height="6" fill="#a6b7cd" opacity=".3"/></pattern>
++        </defs>
++        <g fill="#142330" stroke="#314552" stroke-width="1">
++          <path d="M0 570H130V430H240V590H380V510H520V710H680V640H820V700H960V570H1080V660H1190V460H1310V520H1460V390H1600V1000H0Z"/>
++        </g>
++        <g fill="url(#il-city-facade)" stroke="#47606c" stroke-opacity=".6" stroke-width="2">
++          <path d="M35 1000V350H65V280H155V350H185V1000Z"/>
++          <path d="M235 1000V450H400V1000Z"/>
++          <path d="M445 1000V570H560V1000Z"/>
++          <path d="M620 1000V720H775V1000Z"/>
++          <path d="M840 1000V680H980V1000Z"/>
++          <path d="M1030 1000V490H1180V1000Z"/>
++          <path d="M1240 1000V290H1270V220H1370V290H1410V1000Z"/>
++          <path d="M1460 1000V430H1585V1000Z"/>
++        </g>
++        <g fill="url(#il-city-cyan)"><rect x="48" y="368" width="124" height="632"/><rect x="457" y="588" width="91" height="412"/><rect x="852" y="698" width="116" height="302"/><rect x="1254" y="312" width="142" height="688"/></g>
++        <g fill="url(#il-city-gold)"><rect x="248" y="470" width="139" height="530"/><rect x="632" y="738" width="131" height="262"/><rect x="1043" y="510" width="124" height="490"/><rect x="1472" y="448" width="101" height="552"/></g>
++        <g opacity=".8"><rect x="68" y="286" width="84" height="5" fill="#66cddd"/><rect x="244" y="484" width="9" height="125" fill="#eb69b6"/><rect x="1042" y="497" width="125" height="6" fill="#dfad65"/><rect x="1275" y="226" width="90" height="5" fill="#83b8ff"/><rect x="1391" y="332" width="7" height="145" fill="#699ee6"/></g>
++        <rect width="1600" height="1000" fill="url(#il-city-haze)" opacity=".35"/>
++      </svg>`;
++      shellMain.prepend(city);
++    } else if(city.parentElement!==shellMain) shellMain.prepend(city);
++    let weather=document.getElementById('interlinked-weather');
++    if (!weather) {
++      weather=document.createElement('div');weather.id='interlinked-weather';weather.setAttribute('aria-hidden','true');
++      // ponytail: CSS droplets approximate wet glass; no fluid simulation or canvas loop.
++      for(let i=0;i<40;i++) {
++        const drop=document.createElement('i');
++        drop.style.cssText=`left:${(i*37+11)%100}%;--drop-delay:-${(i*7)%23}s;--drop-size:${2+i%4}px;--drop-stretch:${12+i%5*5}px;--drop-rate:${.7+(i%7)*.13}`;
++        weather.appendChild(drop);
++      }
++      shellMain.prepend(weather);
++    } else if(weather.parentElement!==shellMain) shellMain.prepend(weather);
++    weather.style.setProperty('--il-rain-travel',shellMain.getBoundingClientRect().height+160+'px');
++    let controls=document.getElementById('interlinked-controls');
++    if(!controls) {
++      controls=document.createElement('details');controls.id='interlinked-controls';
++      const toggle=(key,label)=>`<label class="il-control-toggle"><span>${label}</span><input type="checkbox" data-setting="${key}"></label>`;
++      const slider=(key,label,unit)=>`<label class="il-control-slider"><span>${label} <output data-output="${key}"></output>${unit}</span><input type="range" data-setting="${key}" min="${ranges[key][0]}" max="${ranges[key][1]}" step="1"></label>`;
++      controls.innerHTML=`<summary aria-controls="interlinked-control-panel">◈ 外觀</summary><div id="interlinked-control-panel" role="group" aria-label="夜城主題控制面板">
++        <header><strong>夜城 · 外觀</strong><button type="button" data-action="close" aria-label="關閉外觀面板">✕</button></header>
++        <fieldset><legend>遠景與雨景</legend>${toggle('city','顯示大樓')}${toggle('rain','玻璃雨滴')}${slider('rainAmount','雨量','%')}${slider('rainSpeed','落下速度','')}</fieldset>
++        <fieldset><legend>光與玻璃</legend>${toggle('glass','背景／面板霧玻璃')}${slider('glassStrength','霧化','px')}${toggle('light','右上光源')}<label><span>光源顏色</span><input type="color" data-setting="lightColor" aria-label="光源顏色"></label>${slider('lightStrength','亮度','%')}</fieldset>
++        <fieldset><legend>掃描與 HUD</legend>${toggle('scan','背景掃描線')}${slider('scanSpeed','掃描週期','秒')}${toggle('hud','顯示 HUD')}${slider('hudSize','HUD 大小','%')}</fieldset>
++        ${toggle('motion','播放雨景／上邊框動畫')}
++        <p>${reducedMotion?'系統已減少動畫；開啟上項只允許本主題例外。':'動畫僅影響主題背景。'}掃描線依獨立開關播放。</p>
++        <footer><span role="status" data-save-status>設定保存在本機</span><button type="button" data-action="reset">恢復預設</button></footer>
++      </div>`;
++      const close=()=>{controls.open=false;controls.querySelector('summary').focus();};
++      controls.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();}});
++      controls.addEventListener('input',event=>{
++        const input=event.target;
++        if(!input.matches('input[data-setting]'))return;
++        const key=input.dataset.setting;
++        if(key==='lightColor') {
++          if(!/^#[0-9a-f]{6}$/i.test(input.value)) return;
++          preferences[key]=input.value;
++        } else preferences[key]=input.type==='checkbox'?input.checked:Math.max(ranges[key][0],Math.min(ranges[key][1],Number(input.value)));
++        save();
++      });
++      const save=()=>{
++        applyPreferences();
++        const status=controls.querySelector('[data-save-status]');
++        try {localStorage.setItem(preferenceKey,JSON.stringify(preferences));status.textContent='已儲存在本機';}
++        catch {status.textContent='儲存不可用，僅本次有效';}
++      };
++      controls.querySelector('[data-action="close"]').addEventListener('click',close);
++      controls.querySelector('[data-action="reset"]').addEventListener('click',()=>{preferences={...defaults};save();});
++      hud.before(controls);
++      applyPreferences();
++    } else if(controls.nextElementSibling!==hud) hud.before(controls);
++  };
    const ensure = () => {
      const root = document.documentElement;
      if (!root) return false;
-@@ -78,6 +119,46 @@
+@@ -48,7 +202,7 @@
+     root.style.setProperty("--dream-project-prefix", cssString(copy.projectPrefix));
+     root.style.setProperty("--dream-project-label", cssString(copy.projectLabel));
+ 
+-    const shellMain = document.querySelector("main.main-surface") || document.querySelector("main");
++    const shellMain = document.querySelector('main.main-surface, main[class*="MainContentSurface-"]') || document.querySelector("main");
+     const home = document.querySelector('[role="main"]:has([data-testid="home-icon"])');
+     for (const candidate of document.querySelectorAll('[role="main"].dream-home')) {
+       if (candidate !== home) candidate.classList.remove("dream-home");
+@@ -78,6 +232,53 @@
      chrome.style.width = `${Math.round(shellBox.width)}px`;
      chrome.style.height = `${Math.round(shellBox.height)}px`;
      chrome.classList.toggle("dream-home-shell", Boolean(home));
@@ -117,24 +239,37 @@
 +        if (portrait.textContent !== placeholder) portrait.textContent = placeholder;
 +        if (hud.nextElementSibling !== composer) composer.before(hud);
 +        updateHud(hud);
++        ensureControls(composer, hud, shellMain);
 +      }
 +    } else {
 +      document.getElementById("interlinked-hud")?.remove();
++
++    document.getElementById("interlinked-controls")?.remove();
++    document.getElementById("interlinked-weather")?.remove();
++    document.getElementById("interlinked-city")?.remove();
++    for(const key of ['city','rain','glass','light','scan','hud','motion']) document.documentElement.removeAttribute('data-il-'+key);
++    for(const key of ['rain-opacity','rain-duration','glass-blur','light-opacity','light-color','scan-duration','hud-scale']) document.documentElement.style.removeProperty('--il-'+key);
 +    delete window.__INTERLINKED_TELEMETRY__;
 +    }
      return true;
    };
  
-@@ -92,6 +173,8 @@
+@@ -92,6 +293,14 @@
      document.querySelectorAll(".dream-home").forEach((node) => node.classList.remove("dream-home"));
      document.querySelectorAll(".dream-home-shell").forEach((node) => node.classList.remove("dream-home-shell"));
      document.getElementById(CHROME_ID)?.remove();
 +    document.getElementById("interlinked-hud")?.remove();
++
++    document.getElementById("interlinked-controls")?.remove();
++    document.getElementById("interlinked-weather")?.remove();
++    document.getElementById("interlinked-city")?.remove();
++    for(const key of ['city','rain','glass','light','scan','hud','motion']) document.documentElement.removeAttribute('data-il-'+key);
++    for(const key of ['rain-opacity','rain-duration','glass-blur','light-opacity','light-color','scan-duration','hud-scale']) document.documentElement.style.removeProperty('--il-'+key);
 +    delete window.__INTERLINKED_TELEMETRY__;
    };
  
    const verify = () => {
-@@ -100,6 +183,7 @@
+@@ -100,6 +309,7 @@
      const nativeHome = document.querySelector('[role="main"]:has([data-testid="home-icon"])');
      const markedHome = document.querySelector('[role="main"].dream-home');
      const missing = [];
@@ -142,11 +277,17 @@
      if (!root?.classList.contains("codedrobe-codex-skin")) {
        missing.push({ name: "legacy-root-class", selectors: ["html.codedrobe-codex-skin"] });
      }
-@@ -147,6 +231,8 @@
+@@ -147,6 +357,14 @@
    document.querySelectorAll(".dream-home-shell").forEach((node) => node.classList.remove("dream-home-shell"));
    document.getElementById("codedrobe-codex-skin-style")?.remove();
    document.getElementById("codedrobe-codex-skin-chrome")?.remove();
 +  document.getElementById("interlinked-hud")?.remove();
++
++    document.getElementById("interlinked-controls")?.remove();
++    document.getElementById("interlinked-weather")?.remove();
++    document.getElementById("interlinked-city")?.remove();
++    for(const key of ['city','rain','glass','light','scan','hud','motion']) document.documentElement.removeAttribute('data-il-'+key);
++    for(const key of ['rain-opacity','rain-duration','glass-blur','light-opacity','light-color','scan-duration','hud-scale']) document.documentElement.style.removeProperty('--il-'+key);
 +    delete window.__INTERLINKED_TELEMETRY__;
  }
  

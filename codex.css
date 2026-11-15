@@ -22,8 +22,10 @@ html.codedrobe-host-codex body { background: #0b0f12 !important; color: #e6eef3;
 html.codedrobe-host-codex :is(main.main-surface, main[class*="MainContentSurface-"]) { position: relative; isolation: isolate; background: #0b0f12 !important; }
 html.codedrobe-host-codex :is(main.main-surface, main[class*="MainContentSurface-"])::before {
   content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background-image: linear-gradient(#0b0f1266,#0b0f1299), var(--codedrobe-image-hero);
-  background-size: 100% 100%,cover; background-position: center; background-repeat: no-repeat;
+  /* Screen blending keeps the lattice in front without hiding the distant city. */
+  background-image:linear-gradient(#0b0f1266,#0b0f1299),var(--codedrobe-image-hero);
+  background-size:100% 100%,cover; background-position:center; background-repeat:no-repeat;
+  mix-blend-mode:screen;
   animation: il-breathe 9s ease-in-out infinite;
 }
 html.codedrobe-host-codex :is(main.main-surface, main[class*="MainContentSurface-"]):has(.dream-home)::before { display: none; }
@@ -151,3 +153,59 @@ html.codedrobe-host-codex #interlinked-hud .il-meter::after {
 }
 
 html.codedrobe-host-codex #interlinked-hud .il-portrait {display:grid;place-items:center;color:#ff4f8b;font-size:10px;}
+/* Interactive controls are separate from decorative, pointer-transparent layers. */
+html.codedrobe-host-codex #interlinked-controls {position:relative;z-index:12;width:100%;margin:0 0 5px;color:#b9ced8;font:12px/1.4 'Microsoft JhengHei',sans-serif;}
+html.codedrobe-host-codex #interlinked-controls summary {list-style:none;cursor:pointer;width:fit-content;margin-left:auto;padding:3px 10px;border:1px solid #2a414b;border-radius:6px;background:#0d171de6;color:#6bd7e6;user-select:none;}
+html.codedrobe-host-codex #interlinked-controls summary::-webkit-details-marker {display:none;}
+html.codedrobe-host-codex #interlinked-controls :is(summary,button,input):focus-visible {outline:2px solid #64d5e3;outline-offset:3px;}
+html.codedrobe-host-codex #interlinked-control-panel {position:absolute;right:0;bottom:calc(100% + 6px);width:min(340px,100%);max-height:min(640px,65vh);overflow:auto;overscroll-behavior:contain;box-sizing:border-box;padding:14px;border:1px solid #3d6975;border-radius:12px;background:#0c161cf5;box-shadow:0 10px 38px #0009;backdrop-filter:blur(18px);}
+html.codedrobe-host-codex #interlinked-control-panel :is(header,footer) {display:flex;align-items:center;justify-content:space-between;gap:12px;}
+html.codedrobe-host-codex #interlinked-control-panel header {color:#6bd7e6;letter-spacing:.1em;margin-bottom:10px;}
+html.codedrobe-host-codex #interlinked-control-panel button {cursor:pointer;border:1px solid #2a414b;border-radius:5px;background:#16242c;padding:4px 8px;color:#dce9ef;}
+html.codedrobe-host-codex #interlinked-control-panel fieldset {border:1px solid #2a414b;border-radius:6px;padding:8px 10px;margin:8px 0;min-width:0;}
+html.codedrobe-host-codex #interlinked-control-panel legend {color:#e8a33d;padding:0 5px;}
+html.codedrobe-host-codex #interlinked-control-panel label {display:flex;align-items:center;justify-content:space-between;gap:10px;margin:7px 0;}
+html.codedrobe-host-codex #interlinked-control-panel .il-control-slider {font-size:11px;color:#96b1c1;}
+html.codedrobe-host-codex #interlinked-control-panel input[type=range] {width:132px;max-width:48%;accent-color:#2fb4c9;cursor:pointer;}
+html.codedrobe-host-codex #interlinked-control-panel input[type=checkbox] {accent-color:#2fb4c9;width:16px;height:16px;cursor:pointer;}
+html.codedrobe-host-codex #interlinked-control-panel :is(p,footer span) {font-size:10px;color:#96b1c1;}
+html.codedrobe-host-codex #interlinked-control-panel p {margin:10px 0;}
+html.codedrobe-host-codex #interlinked-weather {position:absolute;inset:0;overflow:hidden;z-index:-1;pointer-events:none!important;}
+html.codedrobe-host-codex #interlinked-weather::before {content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 100% 0%,color-mix(in srgb,var(--il-light-color,#ffe3a8) 75%,transparent) 0%,color-mix(in srgb,var(--il-light-color,#ffe3a8) 30%,transparent) 28%,color-mix(in srgb,var(--il-light-color,#ffe3a8) 8%,transparent) 52%,transparent 76%);opacity:var(--il-light-opacity,.3);}
+html.codedrobe-host-codex #interlinked-weather::after {content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#2fb4c920 0%,#6bd7e6 30%,#e8a33d 45%,#2fb4c920 65%);background-size:250% 100%;animation:il-edge-flow 12s linear infinite;box-shadow:0 0 8px #6bd7e655;}
+html.codedrobe-host-codex #interlinked-weather i {position:absolute;top:-60px;width:var(--drop-size);height:var(--drop-stretch);border-radius:65% 45% 65% 55%;border-right:1px solid #d5f4ff8c;border-bottom:1px solid #b8e5f870;background:linear-gradient(105deg,#e6faff2b,#08131840 50%,#9bd8ef50);box-shadow:1px 0 3px #0005,-1px 0 1px #c9efff33;opacity:var(--il-rain-opacity,.45);animation:il-rain-fall calc(var(--il-rain-duration,16s)*var(--drop-rate)) linear infinite;animation-delay:var(--drop-delay);}
+html.codedrobe-host-codex #interlinked-weather i[hidden] {display:none;}
+@keyframes il-rain-fall {from {transform:translate(0,0);}to {transform:translate(-18px,var(--il-rain-travel,1200px));}}
+@keyframes il-edge-flow {from {background-position:0% 0;}to {background-position:100% 0;}}
+html.codedrobe-host-codex[data-il-rain=false] #interlinked-weather i {display:none;}
+html.codedrobe-host-codex[data-il-light=false] #interlinked-weather::before {display:none;}
+html.codedrobe-host-codex[data-il-motion=false] #interlinked-weather :is(i),
+html.codedrobe-host-codex[data-il-motion=false] #interlinked-weather::after {animation-play-state:paused;}
+/* Fog blurs the backdrop, never the glyphs or native input contents. */
+html.codedrobe-host-codex[data-il-glass=true] :is(#interlinked-hud,.composer-surface-chrome,[class*="ComposerLayoutRoot-"]) {background:#101920cc!important;backdrop-filter:blur(var(--il-glass-blur,12px)) saturate(.85);}
+html.codedrobe-host-codex[data-il-hud=false] #interlinked-hud {display:none;}
+html.codedrobe-host-codex #interlinked-hud {zoom:var(--il-hud-scale,1);width:calc(100% / var(--il-hud-scale,1));}
+html.codedrobe-host-codex :is(main.main-surface,main[class*="MainContentSurface-"])::after {animation-duration:var(--il-scan-duration,16s);}
+html.codedrobe-host-codex[data-il-scan=false] :is(main.main-surface,main[class*="MainContentSurface-"])::after {display:none;}
+/* Codex resets form appearance; restore visible native switches and slider tracks. */
+html.codedrobe-host-codex #interlinked-control-panel input[type=checkbox] {appearance:auto!important;opacity:1!important;position:static!important;border:1px solid #6b8997;background:#15262e;}
+html.codedrobe-host-codex #interlinked-control-panel input[type=range] {appearance:none;height:4px;border-radius:3px;background:#365460;}
+html.codedrobe-host-codex #interlinked-control-panel input[type=range]::-webkit-slider-thumb {appearance:none;width:14px;height:14px;border-radius:50%;background:#2fb4c9;border:1px solid #64d5e3;}
+
+/* The lattice is outside the wet glass; blur only its artwork layer. */
+html.codedrobe-host-codex[data-il-glass=true] :is(main.main-surface,main[class*="MainContentSurface-"])::before,
+html.codedrobe-host-codex[data-il-glass=true] .dream-home::before {
+  filter:blur(var(--il-glass-blur,12px));
+  clip-path:inset(0);
+}
+
+html.codedrobe-host-codex #interlinked-control-panel input[type=color] {appearance:auto;width:48px;height:28px;padding:2px;border:1px solid #6b8997;border-radius:4px;background:#15262e;cursor:pointer;}
+
+/* Back to front: city (-2), lattice (-1), glass weather (-1), native content. */
+html.codedrobe-host-codex #interlinked-city {position:absolute;inset:0;z-index:-2;pointer-events:none!important;overflow:hidden;clip-path:inset(0);}
+html.codedrobe-host-codex #interlinked-city svg {display:block;position:absolute;left:6%;bottom:0;width:88%;height:62%;opacity:.62;filter:blur(3.5px);}
+html.codedrobe-host-codex[data-il-city=false] #interlinked-city {display:none;}
+html.codedrobe-host-codex[data-il-glass=true] #interlinked-city {filter:blur(var(--il-glass-blur,12px));}
+
+/* Atmospheric distance stays soft even when the foreground glass is switched off. */
+html.codedrobe-host-codex #interlinked-city::after {content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,#14212b20 62%,#0b121a99 100%);pointer-events:none;}
