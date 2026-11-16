@@ -4,7 +4,7 @@
 
 繁體中文 | [English](docs/README.en.md)
 
-將 [Claude 主題](https://github.com/xiangerwu/claude-theme-icanfixthat) 的夜城配色、格線背景、向下掃描光與 LAPWING HUD 移植到 Codex 桌面版。這是本地實驗性主題，透過 CodeDrobe Core 套用，不修改 Codex 安裝檔。
+將 [Claude 主題](https://github.com/xiangerwu/claude-theme-icanfixthat) 的夜城配色、格線背景、向下掃描光與 GPT 娘 HUD 移植到 Codex 桌面版。這是本地實驗性主題，透過 CodeDrobe Core 套用，不修改 Codex 安裝檔。
 
 ## 外觀與資料
 
@@ -80,9 +80,9 @@ powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File .\launch-theme.ps1
 
 ## 頭像與私人檔案
 
-公開 repo 僅包含本頁展示用的 HUD 截圖，**不含獨立私人頭像檔、其他實機截圖、DOM 快照、備份或封裝產物**。沒有頭像時顯示 `NO SIGNAL`。
+公開 repo 隨附 GPT 娘頭像與本頁 HUD 示意截圖；不含舊私人頭像、其他實機截圖、DOM 快照、備份或封裝產物。沒有頭像時顯示 `NO SIGNAL`。
 
-若有權使用自己的圖片，可放入 `assets/portrait.jpg` 或 `assets/portrait.png`，再執行 `node pack.mjs`。本地封裝會包含圖片；請勿公開帶有未授權素材的 `dist/`。頭像、`theme.local.json`、`dist/` 都已加入 `.gitignore`。
+若有權使用自己的圖片，可放入 `assets/portrait.jpg` 或 `assets/portrait.png`，再執行 `node pack.mjs`。本地封裝會包含圖片；請勿公開帶有未授權素材的 `dist/`。目前的 `assets/portrait.jpg` 是已納入版本控管的生成頭像；替換成私人圖片時請勿提交。`theme.local.json`、`dist/` 與備份仍由 Git 忽略。
 
 格線與配色在 `assets/` 和 `codex.css`，HUD 結構在 `patches/core-0.6.1.patch`，數據讀取器為 `telemetry.mjs`。若修改數據讀取器，重新執行 `node install.mjs` 並重啟 watcher。
 
@@ -105,3 +105,5 @@ codedrobe restore --app codex --port 9335
 若回報 `restart-required`，完整關閉並重開 Codex。要還原 Core 程式碼，將安裝時 `backup-install-時間戳/` 中三個檔案依原相對路徑複製回全域 `@codedrobe/core` 目錄（可用 `npm root -g` 找到）。還原前不要執行 watcher。
 
 本專案程式碼採 MIT；Core 修補衍生自 Apache-2.0 的 `@codedrobe/core`，授權與聲明保留於 `patches/`。私人頭像不在這些授權範圍內。
+
+目前隨附 / Included avatar: **GPT 娘**. [頭像來源與非商用說明 / Avatar credits](docs/AVATAR-CREDITS.md).

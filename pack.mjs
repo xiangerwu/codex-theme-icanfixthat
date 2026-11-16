@@ -12,4 +12,4 @@ const local=path.join(root,'theme.local.json');
 await fs.writeFile(local,JSON.stringify(manifest,null,2)+'\n');
 await fs.mkdir(path.join(root,'dist'),{recursive:true});
 execFileSync(process.execPath,[path.join(globalModules,'@codedrobe/core/bin/codedrobe.mjs'),'theme','pack',local,'--output',path.join(root,'dist/interlinked-codex.codedrobe-theme'),'--force'],{stdio:'inherit'});
-console.log(manifest.images.portrait?'Private portrait included in local package; do not publish dist.':'No private portrait: HUD uses NO SIGNAL.');
+console.log(manifest.images.portrait?'Portrait included in local package; see docs/AVATAR-CREDITS.md. Do not publish private replacements.':'No private portrait: HUD uses NO SIGNAL.');

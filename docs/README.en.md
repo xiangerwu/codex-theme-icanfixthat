@@ -34,7 +34,7 @@ Context means **last request tokens / reported model context window**, not preci
 
 ## Private assets and motion
 
-This repository includes the HUD preview shown above, but excludes standalone private portraits, other live screenshots, DOM snapshots, backups and packaged output. With no portrait, the HUD shows `NO SIGNAL`. Add your own permitted `assets/portrait.jpg` or `assets/portrait.png` and run `node pack.mjs`; the resulting local package contains that image, so do not publish it without permission.
+This repository includes the generated GPT avatar and HUD preview shown above, but excludes the original private portrait, other live screenshots, DOM snapshots, backups and packaged output. With no portrait, the HUD shows `NO SIGNAL`. Add your own permitted `assets/portrait.jpg` or `assets/portrait.png` and run `node pack.mjs`; the resulting local package contains that image, so do not publish it without permission.
 
 The scan defaults to a 16-second cycle with the previously approved reduced-motion exception. Adjust or disable it from the appearance panel without editing CSS.
 
@@ -71,3 +71,5 @@ Use **Codex 夜城** in Start Menu, including after a reboot. This is an on-dema
 The stock Codex icon does not launch the theme. If stock Codex is already open without CDP, close it before using this shortcut. Only the explicit `-RestartExisting` switch permits a restart. `-Check` checks dependencies without launching. Local diagnostics are in ignored `.runtime/`. Reinstall the shortcut after moving this repository; remove the Start Menu shortcut to stop using the themed entry.
 
 Verified on Codex 26.1111.2228.0. With CDP already open, `powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File .\launcher.test.ps1` checks the real shortcut, probe progress handling and duplicate prevention. Screenshots from the controls test stay in `.runtime/`.
+
+目前隨附 / Included avatar: **GPT 娘**. [頭像來源與非商用說明 / Avatar credits](AVATAR-CREDITS.md).

@@ -16,3 +16,6 @@
 node_modules/
 *.log
 /.runtime/
+
+# Approved generated avatar; original portrait backups stay local.
+!/assets/portrait.jpg

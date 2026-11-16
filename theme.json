@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "id": "interlinked-codex",
   "displayName": "Interlinked · 夜城 HUD",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "images": {
     "hero": "assets/hero.png"
   },
   "copy": {
     "brandTitle": "INTERLINKED",
     "brandSubtitle": "夜城連線 · CODEX",
-    "signature": "◆ LAPWING ▸ 慢慢來，我們一起完成。",
+    "signature": "◆ GPT 娘 ▸ 慢慢來，我們一起完成。",
     "tagline": "INTERLINKED / 夜城工作站"
   },
   "targets": {

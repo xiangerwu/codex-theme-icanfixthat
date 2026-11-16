@@ -56,7 +56,7 @@
 +    text('.il-context-used','最近請求 '+(pct===null?'—':pct.toFixed(1)+'%'));
 +    const title=d?.observedAt?'最後 token 事件：'+new Date(d.observedAt).toLocaleString()+'；最近請求總 tokens / 模型上下文上限，非精確即時占用。':'尚無目前對話的 token 事件';
 +    hud.querySelector('.il-context').title=title;
-+    hud.setAttribute('aria-label',d?'LAPWING HUD，目前對話事件數據':'LAPWING HUD，尚無目前對話數據');
++    hud.setAttribute('aria-label',d?'GPT 娘 HUD，目前對話事件數據':'GPT 娘 HUD，尚無目前對話數據');
 +    hud.querySelector('.il-limits').title=d?.observedAt?'事件最後回報：'+new Date(d.observedAt).toLocaleString()+'；不是即時帳戶查詢。':'尚無額度回報';
 +    meter('.il-context .il-meter',pct,'#36d7f0');
 +    text('.il-history','紀錄 '+number(d?.turns)+' 回合');
@@ -220,10 +220,10 @@
 +        if (!hud) {
 +          hud = document.createElement("section");
 +          hud.id = "interlinked-hud";
-+          hud.setAttribute("aria-label", "LAPWING HUD，尚未接入即時數據");
++          hud.setAttribute("aria-label", "GPT 娘 HUD，尚未接入即時數據");
 +          hud.innerHTML = `
 +            <div class="il-hud-grid">
-+              <div class="il-portrait" role="img" aria-label="LAPWING 頭像"></div>
++              <div class="il-portrait" role="img" aria-label="GPT 娘 頭像"></div>
 +              <div class="il-context">
 +                <div class="il-heading"><b>上下文</b><span class="il-context-count">— / —</span></div>
 +                <div class="il-cyan il-context-used">最近請求 —</div>
@@ -239,7 +239,7 @@
 +                <div class="il-meter il-meter-week" aria-label="每週額度未知"></div>
 +              </div>
 +            </div>
-+            <div class="il-persona"><span><b>◆ LAPWING ▸</b> 卡住的話先深呼吸，我們一起慢慢想。</span><span class="il-cyan">狀態 —</span></div>
++            <div class="il-persona"><span><b>◆ GPT 娘 ▸</b> 卡住的話先深呼吸，我們一起慢慢想。</span><span class="il-cyan">狀態 —</span></div>
 +            <div class="il-footer"><span title="工具數為事件紀錄中的外層呼叫；對話時長含閒置時間">工具呼叫 <b data-field="tools">—</b>　回合 <b data-field="turns">—</b>　上回合 <b data-field="last">—</b>　失敗 <b>—</b>　對話時長 <b data-field="elapsed">—</b></span><span><b data-field="clock">—</b>　<b data-field="date">—</b>　<span class="il-cyan" data-field="status">○ —</span></span></div>`;
 +        }
 +        const portrait = hud.querySelector(".il-portrait");
